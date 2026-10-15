@@ -4,9 +4,11 @@
   "scientific_name": "Trichosurus vulpecula",
   "_note": "Numbers are first-pass placeholders for the director to tune. Facts are draft text, to be checked against sources before release. Brushtails are mostly solitary, so they have no company need.",
   "placeholder": { "shape": "small", "scale": 0.6 },
+  "prey": { "weight": 0.3, "catch_chance": 0.2 },
   "behaviour": {
     "wander_radius": 2.5,
-    "speed": 1.0
+    "speed": 1.0,
+    "flee_speed": 4.0
   },
   "mood": {
     "low": 0.4,

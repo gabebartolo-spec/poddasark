@@ -143,6 +143,13 @@ func retarget(focus: Vector3, zoom_t: float, half_extent: float, widest: float) 
 	_target_focus = CameraMath.clamp_focus(focus, half_extent)
 
 
+## Glides to look at a point at a zoom level, inside the current park bounds.
+## Used to zoom in on an animal, or follow a hunt.
+func look_at_point(focus: Vector3, zoom_t: float) -> void:
+	_target_focus = CameraMath.clamp_focus(focus, bounds_half_extent)
+	_target_zoom_t = clampf(zoom_t, 0.0, 1.0)
+
+
 ## The camera this rig drives, for picking and placing.
 func camera() -> Camera3D:
 	return _camera

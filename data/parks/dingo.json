@@ -1,0 +1,36 @@
+{
+  "id": "australia_dingo",
+  "name": "Australian park: the dingo",
+  "_note": "M3 stage, added to the same world after the apply-learnings finale (zoom out again). Layout and numbers are a first pass for the director to tune. Positions are [x, z] in metres. The dingo appears near the kangaroo mob for its arrival hunt, then settles in its own territory to the south-east.",
+  "phase": "res://data/phases/dingo_arrival.json",
+  "camera": {
+    "focus": [30, -40],
+    "start_zoom": 0.7,
+    "bounds_half_extent": 170,
+    "max_distance": 380
+  },
+  "placeables_add": [
+    { "id": "rock_den", "label": "Rocky den", "kind": "rock_den", "cost": 0 },
+    { "id": "hollow_log", "label": "Hollow log", "kind": "hollow_log", "cost": 0 }
+  ],
+  "tools_add": [
+    { "id": "relocate", "label": "Relocate" }
+  ],
+  "harmony_species": ["dingo"],
+  "features": [
+    { "kind": "invasive_plant", "pos": [120, -110] },
+    { "kind": "invasive_plant", "pos": [140, -70] },
+    { "kind": "litter", "pos": [100, -130] },
+    { "kind": "litter", "pos": [130, -140] }
+  ],
+  "animals": [
+    { "key": "dingo_1", "species": "dingo", "name": "The lone dingo", "group": "south_pack",
+      "pos": [80, -66], "home": [100, -110] },
+    { "key": "dingo_2", "species": "dingo", "name": "Dingo", "group": "south_pack",
+      "pos": [165, -160],
+      "hidden_until": { "host_needs": ["water", "food", "safety"], "join": "dingo_1" } },
+    { "key": "dingo_3", "species": "dingo", "name": "Dingo", "group": "south_pack",
+      "pos": [160, -165],
+      "hidden_until": { "host_needs": ["water", "food", "safety"], "join": "dingo_1" } }
+  ]
+}

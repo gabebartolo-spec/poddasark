@@ -28,6 +28,16 @@ var need_value: Dictionary = {}
 ## Breakdown inside a need, e.g. "shelter" and "calm" inside safety.
 var parts: Dictionary = {}
 
+## Social group, e.g. a dingo pack. Rival groups of a territorial species compete
+## for dens and water. Family that joins or is born takes the group of its host.
+var group := ""
+## Seconds until this predator next goes hunting.
+var hunt_cooldown := 0.0
+## True while chasing or being chased.
+var in_hunt := false
+## Feature this animal moved in at (see EcoWorld.move_ins), or -1.
+var moved_in_at := -1
+
 var rng: SeededRng
 var wander_target: Vector2
 var wait_time := 0.0

@@ -3,6 +3,7 @@
   "name": "Australian park: apply learnings",
   "_note": "M2 stage, added to the wombat tutorial's world after its finale (seamless zoom-out). Layout and numbers are a first pass for the director to tune. Positions are [x, z] in metres; the wombat corner is around [0, 0].",
   "phase": "res://data/phases/apply_learnings.json",
+  "next_stage": "res://data/parks/dingo.json",
   "camera": {
     "focus": [0, 0],
     "start_zoom": 0.62,

@@ -12,8 +12,9 @@ releasing on itch.io.
 
 Open this folder in Godot 4.7.2 and press Play (F5).
 
-The current build is M2: the wombat tutorial (M1), then the camera zooms out to a
-bigger area with a kangaroo mob and possums, and the harmony gate.
+The current build is M3. It plays the wombat tutorial (M1), zooms out to the kangaroo
+mob and possums (M2), then zooms out again for the dingo (M3): an arrival hunt, the
+predator tutorial, hunting, births and the harmony gate with a predator in the park.
 
 Controls:
 - **Pan:** WASD / arrow keys, or drag with the middle mouse button
@@ -21,7 +22,9 @@ Controls:
 - **Zoom:** mouse wheel
 - **Observe an animal:** left-click it (Observe tool)
 - **Tools:** the toolbar or number keys (Observe, Water, Native grasses, Burrow, Clean up,
-  plus Eucalypt and Nest box in M2).
+  plus Eucalypt and Nest box in M2, and Rocky den, Hollow log and Relocate in M3).
+- **Hunts:** the first plays automatically like a wildlife documentary. Later ones show a
+  "Watch" invitation.
   Left-click the ground to place or clean up. Esc goes back to Observe.
 
 All art is grey placeholder for now.
@@ -56,7 +59,7 @@ downloads Godot 4.7.2 on first use.)
 species is doing over time, from a plan of timed player actions:
 
 ```
-tools/godot.sh --headless --path . -s tools/simulate.gd -- --plan res://tools/plans/m2_example.json
+tools/godot.sh --headless --path . -s tools/simulate.gd -- --plan res://tools/plans/m3_example.json --seconds 2400 --every 120
 ```
 
 ## Project layout

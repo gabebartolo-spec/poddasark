@@ -7,8 +7,10 @@ extends CanvasLayer
 signal tool_selected(tool_id: String)
 ## The player pressed Continue on a finale that leads to another stage.
 signal continue_pressed
+## The player accepted the invitation to watch a hunt.
+signal watch_pressed
 
-const BUILD_NOTE := "PLACEHOLDER ART - M2 build (wombat tutorial, then apply learnings)\n" \
+const BUILD_NOTE := "PLACEHOLDER ART - M3 build (wombat, apply learnings, the dingo)\n" \
 	+ "Pan: WASD / arrows or middle-drag   Rotate: right-drag or Q / E   Zoom: wheel\n" \
 	+ "Tools: number keys, Esc to go back to Observe"
 
@@ -21,6 +23,16 @@ var _land_label: Label
 var _land_bar: ProgressBar
 var _continue_button: Button
 var _toolbar: PanelContainer
+
+var _tip_panel: PanelContainer
+var _tip_title: Label
+var _tip_body: Label
+var _toast: Label
+var _toast_time := 0.0
+var _invite_panel: PanelContainer
+var _invite_label: Label
+var _doc_layer: Control
+var _doc_caption: Label
 
 var _harmony_panel: PanelContainer
 var _harmony_bar: ProgressBar
@@ -45,10 +57,12 @@ func _ready() -> void:
 	add_child(_root)
 	_build_left_column(_root)
 	_build_needs_panel(_root)
+	_build_messages(_root)
 
 
 ## Builds (or rebuilds) the toolbar. placeables are the park's placeable entries.
-func setup_tools(placeables: Array) -> void:
+## extra_tools are non-placing tools such as Relocate: {"id", "label"}.
+func setup_tools(placeables: Array, extra_tools: Array = []) -> void:
 	if _toolbar != null:
 		_toolbar.queue_free()
 		_tool_buttons.clear()
@@ -67,6 +81,7 @@ func setup_tools(placeables: Array) -> void:
 	var tools: Array = [{"id": "observe", "label": "Observe"}]
 	tools.append_array(placeables)
 	tools.append({"id": "clean_up", "label": "Clean up"})
+	tools.append_array(extra_tools)
 	for i in tools.size():
 		var t: Dictionary = tools[i]
 		var button := Button.new()
@@ -245,6 +260,138 @@ func _build_left_column(root: Control) -> void:
 	_checklist = VBoxContainer.new()
 	_checklist.visible = false
 	hbox.add_child(_checklist)
+
+
+func _process(delta: float) -> void:
+	if _toast_time > 0.0:
+		_toast_time -= delta
+		_toast.modulate.a = clampf(_toast_time, 0.0, 1.0)
+		_toast.visible = _toast_time > 0.0
+
+
+## A tip that appears the first time a situation happens in play. Stays until closed.
+func show_tip(tip: Dictionary) -> void:
+	_tip_title.text = tip.get("title", "")
+	_tip_body.text = tip.get("body", "")
+	_tip_panel.visible = true
+
+
+## A short message above the toolbar that fades out.
+func show_toast(text: String) -> void:
+	_toast.text = text
+	_toast_time = 4.0
+	_toast.visible = true
+
+
+func show_hunt_invite(text: String) -> void:
+	_invite_label.text = text
+	_invite_panel.visible = true
+
+
+func hide_hunt_invite() -> void:
+	_invite_panel.visible = false
+
+
+## Wildlife-documentary framing for a hunt: letterbox bars and a narrated caption.
+func show_documentary(caption: String) -> void:
+	_doc_caption.text = caption
+	_doc_layer.visible = true
+	hide_hunt_invite()
+
+
+func set_documentary_caption(caption: String) -> void:
+	_doc_caption.text = caption
+
+
+func hide_documentary() -> void:
+	_doc_layer.visible = false
+
+
+func _build_messages(root: Control) -> void:
+	# Letterbox bars and caption for watching a hunt. Placeholder styling.
+	_doc_layer = Control.new()
+	_doc_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_doc_layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_doc_layer.visible = false
+	root.add_child(_doc_layer)
+	for top in [true, false]:
+		var bar := ColorRect.new()
+		bar.color = Color(0.08, 0.08, 0.08, 0.92)
+		bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		bar.set_anchors_preset(Control.PRESET_TOP_WIDE if top else Control.PRESET_BOTTOM_WIDE)
+		if top:
+			bar.offset_bottom = 90
+		else:
+			bar.offset_top = -110
+		_doc_layer.add_child(bar)
+	_doc_caption = Label.new()
+	_doc_caption.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_doc_caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_doc_caption.add_theme_font_size_override("font_size", 22)
+	_doc_caption.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+	_doc_caption.offset_top = -100
+	_doc_caption.offset_bottom = -12
+	_doc_caption.offset_left = 120
+	_doc_caption.offset_right = -120
+	_doc_layer.add_child(_doc_caption)
+
+	_tip_panel = PanelContainer.new()
+	_tip_panel.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	_tip_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_tip_panel.offset_top = 12
+	_tip_panel.custom_minimum_size = Vector2(420, 0)
+	_tip_panel.visible = false
+	root.add_child(_tip_panel)
+	var box := _padded_vbox(_tip_panel)
+	var tip_label := Label.new()
+	tip_label.text = "Tip"
+	tip_label.add_theme_font_size_override("font_size", 13)
+	box.add_child(tip_label)
+	_tip_title = Label.new()
+	_tip_title.add_theme_font_size_override("font_size", 20)
+	box.add_child(_tip_title)
+	_tip_body = _wrapping_label()
+	_tip_body.custom_minimum_size = Vector2(390, 0)
+	box.add_child(_tip_body)
+	var ok := Button.new()
+	ok.text = "Got it"
+	ok.focus_mode = Control.FOCUS_NONE
+	ok.pressed.connect(func() -> void: _tip_panel.visible = false)
+	box.add_child(ok)
+
+	_invite_panel = PanelContainer.new()
+	_invite_panel.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	_invite_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_invite_panel.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	_invite_panel.offset_bottom = -70
+	_invite_panel.visible = false
+	root.add_child(_invite_panel)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	_padded_vbox(_invite_panel).add_child(row)
+	_invite_label = Label.new()
+	row.add_child(_invite_label)
+	var watch := Button.new()
+	watch.text = "Watch"
+	watch.focus_mode = Control.FOCUS_NONE
+	watch.pressed.connect(func() -> void: watch_pressed.emit())
+	row.add_child(watch)
+	var skip := Button.new()
+	skip.text = "Not now"
+	skip.focus_mode = Control.FOCUS_NONE
+	skip.pressed.connect(hide_hunt_invite)
+	row.add_child(skip)
+
+	_toast = Label.new()
+	_toast.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	_toast.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_toast.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	_toast.offset_bottom = -130
+	_toast.add_theme_font_size_override("font_size", 18)
+	_toast.add_theme_color_override("font_outline_color", Color(0.1, 0.1, 0.1))
+	_toast.add_theme_constant_override("outline_size", 6)
+	_toast.visible = false
+	root.add_child(_toast)
 
 
 func _toggle_checklist() -> void:

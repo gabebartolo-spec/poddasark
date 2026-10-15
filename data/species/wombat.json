@@ -3,9 +3,12 @@
   "name": "Southern hairy-nosed wombat",
   "scientific_name": "Lasiorhinus latifrons",
   "_note": "Numbers are first-pass placeholders for the director to tune. Facts are draft text, to be checked against sources before release.",
+  "prey": { "weight": 0.6, "catch_chance": 0.15 },
+  "breeding": { "interval": 240, "max": 9 },
   "behaviour": {
     "wander_radius": 3.5,
-    "speed": 1.2
+    "speed": 1.2,
+    "flee_speed": 5.0
   },
   "mood": {
     "low": 0.4,

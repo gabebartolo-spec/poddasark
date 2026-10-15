@@ -16,7 +16,7 @@ roughness = 1.0
 
 [sub_resource type="PlaneMesh" id="GroundMesh"]
 material = SubResource("GroundGrey")
-size = Vector2(256, 256)
+size = Vector2(400, 400)
 subdivide_width = 32
 subdivide_depth = 32
 

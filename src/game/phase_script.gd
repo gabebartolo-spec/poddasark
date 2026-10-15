@@ -5,9 +5,13 @@ extends RefCounted
 
 signal step_changed(step: Dictionary)
 signal finished(finale: Dictionary)
+## A tip's situation happened in play for the first time (see "tips" in phase data).
+signal tip_shown(tip: Dictionary)
 
 var steps: Array[Dictionary] = []
 var finale: Dictionary = {}
+var tips: Array[Dictionary] = []
+var shown_tips: Array[String] = []
 var index := 0
 var is_finished := false
 
@@ -17,6 +21,8 @@ static func from_dict(d: Dictionary) -> PhaseScript:
 	for s in d["steps"]:
 		script.steps.append(s)
 	script.finale = d.get("finale", {})
+	for t in d.get("tips", []):
+		script.tips.append(t)
 	return script
 
 
@@ -27,6 +33,7 @@ func current_step() -> Dictionary:
 ## Checks the current step and moves on when it's done. selected_key is the animal
 ## the player is observing, or "".
 func update(world: EcoWorld, selected_key: String) -> void:
+	_check_tips(world, selected_key)
 	if is_finished:
 		return
 	if not is_done(steps[index]["done_when"], world, selected_key):
@@ -37,6 +44,40 @@ func update(world: EcoWorld, selected_key: String) -> void:
 		finished.emit(finale)
 	else:
 		step_changed.emit(steps[index])
+
+
+## Runs a step's world actions ("on_enter"). Scene-only actions (camera focus) are
+## left to the scene. Returns the hunts it started.
+static func run_actions(step: Dictionary, world: EcoWorld) -> Array[Dictionary]:
+	var started: Array[Dictionary] = []
+	for a in step.get("on_enter", []):
+		var action: Dictionary = a
+		if action["action"] == "hunt":
+			var predator := world.find_animal(action["predator"])
+			var prey: EcoAnimal = null
+			var best := INF
+			for other in world.present(action["prey_species"]):
+				var d := other.pos.distance_to(predator.pos)
+				if d < best and not other.in_hunt:
+					prey = other
+					best = d
+			if predator != null and prey != null:
+				var succeed := -1
+				if action.has("succeed"):
+					succeed = 1 if action["succeed"] else 0
+				var hunt := world.start_hunt(predator, prey, succeed)
+				hunt["watch"] = action.get("watch", "invite")
+				started.append(hunt)
+	return started
+
+
+func _check_tips(world: EcoWorld, selected_key: String) -> void:
+	for tip in tips:
+		if tip["id"] in shown_tips:
+			continue
+		if is_done(tip["when"], world, selected_key):
+			shown_tips.append(tip["id"])
+			tip_shown.emit(tip)
 
 
 static func is_done(cond: Dictionary, world: EcoWorld, selected_key: String) -> bool:
@@ -67,5 +108,15 @@ static func is_done(cond: Dictionary, world: EcoWorld, selected_key: String) -> 
 			return n >= int(cond["at_least"])
 		"harmony":
 			return world.harmony_reached()
+		"hunts_finished":
+			return world.hunts_finished >= int(cond["at_least"])
+		"species_need_below":
+			var value := world.species_need(cond["species"], cond["need"])
+			return value >= 0.0 and value < float(cond["below"])
+		"all":
+			for c in cond["of"]:
+				if not is_done(c, world, selected_key):
+					return false
+			return true
 	push_error("Unknown step condition: %s" % cond["type"])
 	return false

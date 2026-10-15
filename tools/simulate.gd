@@ -73,8 +73,11 @@ func _report(world: EcoWorld, t: float) -> void:
 	for entry in world.harmony_report():
 		parts.append("%s %d @ %.2f%s" % [entry["id"], int(entry["count"]), float(entry["average"]),
 			"*" if entry["content"] else ""])
-	print("t=%5.1f  harmony %.2f%s  land %.2f  | %s" % [t, world.harmony_progress(),
-		" REACHED" if world.harmony_reached() else "", world.land_health(), "  ".join(parts)])
+	var hunts := ""
+	if world.hunts_finished > 0:
+		hunts = "  hunts %d/%d caught" % [world.hunts_succeeded, world.hunts_finished]
+	print("t=%5.1f  harmony %.2f%s  land %.2f%s  | %s" % [t, world.harmony_progress(),
+		" REACHED" if world.harmony_reached() else "", world.land_health(), hunts, "  ".join(parts)])
 
 
 func _species_for(d: Dictionary, have: Dictionary) -> Dictionary:

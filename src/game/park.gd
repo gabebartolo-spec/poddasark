@@ -26,6 +26,17 @@ var _rig: CameraRig
 var _hud: Hud
 var _tool := "observe"
 var _placeables: Dictionary = {}
+## Non-placing tools added by stages, e.g. Relocate.
+var _extra_tools: Array = []
+## The hunt the camera is following, or {}.
+var _watching: Dictionary = {}
+## A hunt the player has been invited to watch, or {}.
+var _invited: Dictionary = {}
+var _cut_away := false
+## An animal a tutorial step is showing: the camera follows it until it's selected.
+var _focus_animal: EcoAnimal = null
+var _focus_zoom := 0.3
+var _fact_index := 0
 var _feature_nodes: Dictionary = {}
 var _animal_nodes: Dictionary = {}
 var _mood_labels: Dictionary = {}
@@ -47,6 +58,9 @@ func _ready() -> void:
 	world.feature_removed.connect(_on_feature_removed)
 	world.animal_emerged.connect(_on_animal_emerged)
 	world.animal_added.connect(_spawn_animal)
+	world.animal_removed.connect(_on_animal_removed)
+	world.hunt_started.connect(func(hunt: Dictionary) -> void: _decide_watch.call_deferred(hunt))
+	world.hunt_ended.connect(_on_hunt_ended)
 	for feature in world.features:
 		_on_feature_added(feature)
 	for animal in world.animals:
@@ -72,6 +86,9 @@ func _ready() -> void:
 	_hud.setup_tools(_placeables.values())
 	_hud.tool_selected.connect(func(tool_id: String) -> void: _tool = tool_id)
 	_hud.continue_pressed.connect(_advance_stage)
+	_hud.watch_pressed.connect(func() -> void:
+		if world.hunts.has(_invited):
+			_watch(_invited))
 
 	_start_phase(phase_path)
 
@@ -97,10 +114,24 @@ func world_has_species(id: String) -> bool:
 
 func _start_phase(path: String) -> void:
 	phase = PhaseScript.from_dict(DataFiles.load_json(path))
-	phase.step_changed.connect(func(_step: Dictionary) -> void: _show_current_step())
+	phase.step_changed.connect(_enter_step)
 	phase.finished.connect(func(finale: Dictionary) -> void:
 		_hud.show_finale(finale, _next_stage != ""))
+	phase.tip_shown.connect(_hud.show_tip)
+	_enter_step(phase.current_step())
+
+
+## Shows a step and runs its "on_enter" actions: world actions (a scripted hunt) and
+## camera actions (zoom in on an animal).
+func _enter_step(step: Dictionary) -> void:
 	_show_current_step()
+	_focus_animal = null
+	PhaseScript.run_actions(step, world)
+	for a in step.get("on_enter", []):
+		var action: Dictionary = a
+		if action["action"] == "focus":
+			_focus_animal = world.find_animal(action["animal"])
+			_focus_zoom = float(action.get("zoom", 0.3))
 
 
 ## The seamless zoom-out: adds the next stage to the same world, widens the park,
@@ -113,7 +144,8 @@ func _advance_stage() -> void:
 	world.add_content(stage, _load_species(stage))
 	for p in stage.get("placeables_add", []):
 		_placeables[p["id"]] = p
-	_hud.setup_tools(_placeables.values())
+	_extra_tools.append_array(stage.get("tools_add", []))
+	_hud.setup_tools(_placeables.values(), _extra_tools)
 	_set_tool("observe")
 	var cam: Dictionary = stage.get("camera", {})
 	var focus := DataFiles.to_vec2(cam.get("focus", [0, 0]))
@@ -130,6 +162,12 @@ func _process(delta: float) -> void:
 	phase.update(world, _selected.key if _selected != null else "")
 	_hud.set_land_health(world.land_health())
 	_hud.set_harmony(world.harmony_progress(), world.harmony_report())
+	_follow_hunt()
+	if _focus_animal != null and _watching.is_empty():
+		if _selected == _focus_animal or not world.animals.has(_focus_animal):
+			_focus_animal = null
+		else:
+			_rig.look_at_point(Vector3(_focus_animal.pos.x, 0.0, _focus_animal.pos.y), _focus_zoom)
 	if _selected != null:
 		_hud.update_animal(_selected, world)
 		var node: Node3D = _animal_nodes[_selected.id]
@@ -165,6 +203,14 @@ func _click(screen_pos: Vector2) -> void:
 	var pos := Vector2(ground.x, ground.z)
 	if _tool == "clean_up":
 		world.clean_up_at(pos, float(_park.get("clean_up_radius", 2.0)))
+	elif _tool == "relocate":
+		var animal := _pick_animal(screen_pos)
+		if animal == null:
+			return
+		if world.relocate(animal):
+			_hud.show_toast("%s relocated to another park that needs one." % animal.display_name)
+		else:
+			_hud.show_toast("Rangers only relocate predators, to rebalance a park.")
 	elif _placeables.has(_tool):
 		if absf(pos.x) <= _bounds and absf(pos.y) <= _bounds:
 			world.add_feature(_placeables[_tool]["kind"], pos)
@@ -221,6 +267,74 @@ func _on_feature_removed(feature: EcoFeature) -> void:
 	if _feature_nodes.has(feature.id):
 		_feature_nodes[feature.id].queue_free()
 		_feature_nodes.erase(feature.id)
+
+
+func _on_animal_removed(animal: EcoAnimal, _reason: String) -> void:
+	if _animal_nodes.has(animal.id):
+		_animal_nodes[animal.id].queue_free()
+		_animal_nodes.erase(animal.id)
+		_mood_labels.erase(animal.id)
+	if _selected == animal:
+		_select(null)
+
+
+## The first hunt (and any scripted "auto" hunt) plays automatically, like a wildlife
+## documentary. Later hunts invite the player to watch; the camera never moves unasked.
+func _decide_watch(hunt: Dictionary) -> void:
+	if not world.hunts.has(hunt) or not _watching.is_empty():
+		return
+	if hunt.get("watch", "") == "auto" or world.hunts_finished == 0:
+		_watch(hunt)
+	else:
+		_invited = hunt
+		var predator: EcoAnimal = hunt["predator"]
+		_hud.show_hunt_invite("A %s is hunting." % predator.species.display_name.to_lower())
+
+
+func _watch(hunt: Dictionary) -> void:
+	_watching = hunt
+	_invited = {}
+	_cut_away = false
+	var predator: EcoAnimal = hunt["predator"]
+	var facts: Array = predator.species.text.get("hunt_facts", [])
+	var caption := ""
+	if not facts.is_empty():
+		caption = facts[_fact_index % facts.size()]
+		_fact_index += 1
+	_hud.show_documentary(caption)
+
+
+## Keeps the camera on the chase, then cuts away before the end, so the outcome is
+## never shown up close.
+func _follow_hunt() -> void:
+	if _watching.is_empty() or not world.hunts.has(_watching):
+		return
+	var predator: EcoAnimal = _watching["predator"]
+	var prey: EcoAnimal = _watching["prey"]
+	var left := float(_watching["duration"]) - float(_watching["elapsed"])
+	if left > 1.5:
+		var mid := (predator.pos + prey.pos) * 0.5
+		_rig.look_at_point(Vector3(mid.x, 0.0, mid.y), 0.2)
+	elif not _cut_away:
+		_cut_away = true
+		_rig.look_at_point(Vector3(predator.home.x, 0.0, predator.home.y), 0.5)
+
+
+func _on_hunt_ended(hunt: Dictionary) -> void:
+	var predator: EcoAnimal = hunt["predator"]
+	var key := "hunt_success" if hunt.get("caught", false) else "hunt_fail"
+	var text: String = predator.species.text.get(key, "")
+	if hunt == _invited:
+		_invited = {}
+		_hud.hide_hunt_invite()
+	if hunt == _watching:
+		_watching = {}
+		_hud.set_documentary_caption(text)
+		get_tree().create_timer(3.0).timeout.connect(func() -> void:
+			if _watching.is_empty():
+				_hud.hide_documentary())
+	elif hunt.get("caught", false) and text != "":
+		_hud.show_toast(text)
 
 
 func _on_animal_emerged(animal: EcoAnimal) -> void:
@@ -358,6 +472,33 @@ func _make_feature_node(kind: String) -> Node3D:
 			canopy.position.y = 5.0
 			node.add_child(canopy)
 			label_height = 7.0
+		"rock_den":
+			var m := SphereMesh.new()
+			m.radius = 1.6
+			m.height = 2.0
+			mesh.mesh = m
+			mesh.material_override = _grey(0.45)
+			mesh.position.y = 0.6
+			for offset in [Vector3(1.4, 0.3, 0.6), Vector3(-1.0, 0.25, 1.1)]:
+				var rock := MeshInstance3D.new()
+				var r := SphereMesh.new()
+				r.radius = 0.8
+				r.height = 1.0
+				rock.mesh = r
+				rock.material_override = _grey(0.4)
+				rock.position = offset
+				node.add_child(rock)
+			label_height = 2.4
+		"hollow_log":
+			var m := CylinderMesh.new()
+			m.top_radius = 0.45
+			m.bottom_radius = 0.45
+			m.height = 3.0
+			mesh.mesh = m
+			mesh.material_override = _grey(0.33)
+			mesh.rotation = Vector3(0.0, 0.0, deg_to_rad(90.0))
+			mesh.position.y = 0.45
+			label_height = 1.4
 		"nest_box":
 			var post := CylinderMesh.new()
 			post.top_radius = 0.08
