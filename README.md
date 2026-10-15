@@ -52,3 +52,10 @@ downloads Godot 4.7.2 on first use.)
 | `data/` | Content: species, needs, parks, phase scripts. |
 | `tests/` | Headless tests (`test_*.gd`). |
 | `tools/` | Helper scripts. |
+
+### Automatic upload
+
+`tools/itch_push.sh` exports both presets and uploads them to an existing itch.io
+page with butler. It needs `BUTLER_API_KEY` and `ITCH_TARGET` (`username/game-slug`)
+set in the environment. The page's visibility is controlled on itch.io, so a Draft or
+Restricted page stays private.
