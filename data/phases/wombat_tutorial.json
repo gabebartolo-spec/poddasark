@@ -11,7 +11,7 @@
     {
       "id": "shelter",
       "title": "No shelter",
-      "body": "Wombats rest in burrows through the heat of the day. Pick Burrow in the toolbar, then click the ground close to the wombat.",
+      "body": "Hairy-nosed wombats shelter in burrows through the heat of the day. Pick Burrow in the toolbar, then click the ground close to the wombat.",
       "done_when": { "type": "need_part", "animal": "lonely", "part": "shelter", "at_least": 1.0 }
     },
     {

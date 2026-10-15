@@ -1,7 +1,7 @@
 {
   "id": "wombat",
-  "name": "Wombat",
-  "scientific_name": "Vombatidae",
+  "name": "Southern hairy-nosed wombat",
+  "scientific_name": "Lasiorhinus latifrons",
   "_note": "Numbers are first-pass placeholders for the director to tune. Facts are draft text, to be checked against sources before release.",
   "behaviour": {
     "wander_radius": 3.5,
@@ -57,11 +57,12 @@
     }
   ],
   "facts": [
-    "Wombats dig burrows with their strong claws, and spend the hottest part of the day resting underground.",
+    "Southern hairy-nosed wombats live in groups, sharing warrens: networks of burrows with many entrances.",
+    "They live in the dry scrub and grasslands of southern South Australia and the Nullarbor Plain.",
+    "They shelter underground through the heat of the day and come out to graze at night.",
+    "They mostly eat native grasses, and get almost all the water they need from their food.",
+    "Their name comes from the fine hairs on their nose. Common wombats have bare noses.",
     "A wombat's pouch faces backwards, so no soil gets in while it digs.",
-    "Wombats mostly eat native grasses, sedges and roots.",
-    "Wombats get most of the water they need from their food, so they don't drink often.",
-    "Wombats are mostly active at night, at dusk and at dawn.",
     "Wombat droppings are cube-shaped.",
     "Invasive plants crowd out the native grasses that wombats rely on."
   ]
