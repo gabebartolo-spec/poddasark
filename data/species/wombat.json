@@ -1,0 +1,72 @@
+{
+  "id": "wombat",
+  "name": "Southern hairy-nosed wombat",
+  "scientific_name": "Lasiorhinus latifrons",
+  "_note": "Numbers are first-pass placeholders for the director to tune. Facts are draft text, to be checked against sources before release.",
+  "prey": { "weight": 0.6, "catch_chance": 0.15 },
+  "breeding": { "interval": 240, "max": 9 },
+  "behaviour": {
+    "wander_radius": 3.5,
+    "speed": 1.2,
+    "flee_speed": 5.0
+  },
+  "mood": {
+    "low": 0.4,
+    "high": 0.75
+  },
+  "needs": [
+    {
+      "id": "water",
+      "label": "Water",
+      "type": "resource",
+      "feature": "water",
+      "range": 14,
+      "weight": 0.5,
+      "issue": "Thirsty: no water close to its home"
+    },
+    {
+      "id": "food",
+      "label": "Food",
+      "type": "resource",
+      "feature": "native_grass",
+      "range": 8,
+      "weight": 1,
+      "issue": "Hungry: no native grasses close to its home"
+    },
+    {
+      "id": "safety",
+      "label": "Safety",
+      "type": "safety",
+      "shelter": "burrow",
+      "range": 6,
+      "shelter_share": 0.5,
+      "fear_kinds": ["litter", "pollutant"],
+      "fear_radius": 10,
+      "fear_per_item": 0.25,
+      "weight": 1,
+      "issue_parts": {
+        "shelter": "No shelter: no burrow close to its home",
+        "calm": "Scared: litter and pollution near its home"
+      }
+    },
+    {
+      "id": "company",
+      "label": "Company",
+      "type": "company",
+      "range": 12,
+      "wanted": 3,
+      "weight": 1,
+      "issue": "Alone: no other wombats nearby"
+    }
+  ],
+  "facts": [
+    "Southern hairy-nosed wombats live in groups, sharing warrens: networks of burrows with many entrances.",
+    "They live in the dry scrub and grasslands of southern South Australia and the Nullarbor Plain.",
+    "They shelter underground through the heat of the day and come out to graze at night.",
+    "They mostly eat native grasses, and get almost all the water they need from their food.",
+    "Their name comes from the fine hairs on their nose. Common wombats have bare noses.",
+    "A wombat's pouch faces backwards, so no soil gets in while it digs.",
+    "Wombat droppings are cube-shaped.",
+    "Invasive plants crowd out the native grasses that wombats rely on."
+  ]
+}

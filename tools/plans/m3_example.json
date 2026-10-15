@@ -1,0 +1,15 @@
+{
+  "_note": "Example balance plan for M3: the park as left at the end of M2, then the dingo stage. Not game content; used by tools/simulate.gd. The scripted arrival hunt isn't run here; natural hunting is.",
+  "park": "res://data/parks/wombat_tutorial.json",
+  "stages": ["res://data/parks/apply_learnings.json", "res://data/parks/dingo.json"],
+  "actions": [
+    { "t": 0, "place": "burrow", "near": "lonely", "pos": [2, 1] },
+    { "t": 0, "place": "native_grass", "near": "lonely", "pos": [-3, 2] },
+    { "t": 0, "clean_up_all": true },
+    { "t": 0, "place": "water", "near": "roo_lead", "pos": [8, 4] },
+    { "t": 0, "place": "native_grass", "near": "roo_lead", "pos": [-3, 2] },
+    { "t": 0, "place": "nest_box", "pos": [-60, 52] },
+    { "t": 5, "place": "rock_den", "near": "dingo_1", "pos": [3, 2] },
+    { "t": 5, "place": "water", "near": "dingo_1", "pos": [-10, 6] }
+  ]
+}

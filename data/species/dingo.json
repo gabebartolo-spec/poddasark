@@ -1,0 +1,82 @@
+{
+  "id": "dingo",
+  "name": "Dingo",
+  "scientific_name": "Canis dingo",
+  "_note": "Numbers are first-pass placeholders, chosen for realism and for the director to tune. Facts and text are drafts, to be checked against sources before release. Dingoes are never villains: hunting is what keeps the ecosystem in balance.",
+  "placeholder": { "shape": "low", "scale": 0.95 },
+  "territorial": true,
+  "relocatable": true,
+  "predator": { "hunt_interval": 150, "chase_time": 6, "chase_speed": 11 },
+  "breeding": { "interval": 300, "max": 5 },
+  "behaviour": {
+    "wander_radius": 10.0,
+    "speed": 2.0
+  },
+  "mood": {
+    "low": 0.4,
+    "high": 0.75
+  },
+  "needs": [
+    {
+      "id": "water",
+      "label": "Water",
+      "type": "resource",
+      "feature": "water",
+      "range": 40,
+      "weight": 0.75,
+      "issue": "Thirsty: no water in its territory"
+    },
+    {
+      "id": "food",
+      "label": "Prey",
+      "type": "prey",
+      "range": 90,
+      "per_animal": 5,
+      "weight": 2,
+      "issue": "Hungry: not enough prey in its territory for the pack"
+    },
+    {
+      "id": "safety",
+      "label": "Den",
+      "type": "safety",
+      "range": 10,
+      "shelter_share": 1.0,
+      "shelter_rules": [
+        { "kind": "rock_den" },
+        { "kind": "burrow", "unoccupied_by": "wombat", "occupied_range": 6 },
+        { "kind": "hollow_log", "max_group": 2 }
+      ],
+      "weight": 1,
+      "issue_parts": {
+        "shelter": "No den: no rocky outcrop, empty burrow or (for a small family) hollow log nearby"
+      }
+    },
+    {
+      "id": "company",
+      "label": "Family",
+      "type": "company",
+      "range": 25,
+      "wanted": 2,
+      "weight": 1,
+      "issue": "Alone: its family hasn't joined it yet"
+    }
+  ],
+  "text": {
+    "hunt_facts": [
+      "Dingoes are Australia's top land predator. By hunting kangaroos, they stop them overgrazing the land.",
+      "Most dingo hunts fail. Kangaroos can bound away at over 50 km/h.",
+      "Where dingoes hunt, smaller predators like foxes and feral cats are kept in check too, which helps small native animals.",
+      "Dingoes often hunt in pairs or family groups, taking turns to tire their prey."
+    ],
+    "hunt_success": "The dingo has fed. Hunting keeps kangaroo numbers in balance with the land.",
+    "hunt_fail": "This time the kangaroo got away."
+  },
+  "facts": [
+    "Dingoes have lived in Australia for at least 3,500 years.",
+    "Dingoes live in family packs, usually with one breeding pair.",
+    "They den in rocky outcrops, hollow logs and old burrows dug by other animals.",
+    "Dingoes howl to keep in touch with their pack across their territory, and to warn rival packs away.",
+    "A dingo can rotate its wrists, which helps it climb and grip.",
+    "Rival dingo packs keep to their own territories, and compete for water, dens and prey."
+  ]
+}

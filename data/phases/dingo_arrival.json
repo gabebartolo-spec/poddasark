@@ -1,0 +1,73 @@
+{
+  "id": "dingo_arrival",
+  "_note": "M3 predator tutorial, in the director's order: an automatic arrival hunt that always fails (story), then zoom in on the dingo and learn its needs one at a time, like the wombat. 'Prey must thrive' and 'too many dingoes' are tips that appear when they happen, not steps. All text is draft for the director to rewrite.",
+  "steps": [
+    {
+      "id": "arrival",
+      "title": "Something's stirring",
+      "body": "A newcomer has come to the park.",
+      "on_enter": [
+        { "action": "hunt", "predator": "dingo_1", "prey_species": "kangaroo", "succeed": false, "watch": "auto" }
+      ],
+      "done_when": { "type": "hunts_finished", "at_least": 1 }
+    },
+    {
+      "id": "meet",
+      "title": "A lone dingo",
+      "body": "A dingo has come looking for a home. Dingoes are Australia's top predator, and the park needs one to stay in balance. Click it to see what it needs.",
+      "on_enter": [
+        { "action": "focus", "animal": "dingo_1", "zoom": 0.24 }
+      ],
+      "done_when": { "type": "selected", "animal": "dingo_1" }
+    },
+    {
+      "id": "den",
+      "title": "No den",
+      "body": "Dingoes raise their pups in dens: rocky outcrops, hollow logs, or old burrows other animals have left. Place a rocky den or a hollow log close to the dingo's territory.",
+      "on_enter": [
+        { "action": "focus", "animal": "dingo_1", "zoom": 0.34 }
+      ],
+      "done_when": { "type": "need_part", "animal": "dingo_1", "part": "shelter", "at_least": 1.0 }
+    },
+    {
+      "id": "water",
+      "title": "Thirsty",
+      "body": "Its territory has no water. Place water within reach of its den.",
+      "done_when": { "type": "need", "animal": "dingo_1", "need": "water", "at_least": 1.0 }
+    },
+    {
+      "id": "family",
+      "title": "Alone",
+      "body": "Dingoes live in family packs. With prey, water and a den, its family will come to join it.",
+      "done_when": { "type": "need", "animal": "dingo_1", "need": "company", "at_least": 1.0 }
+    },
+    {
+      "id": "harmony",
+      "title": "A park in balance",
+      "body": "Predators and prey now share the park. Bring every species to contentment to pass the harmony gate.",
+      "show_harmony": true,
+      "done_when": { "type": "harmony" }
+    }
+  ],
+  "tips": [
+    {
+      "id": "prey_must_thrive",
+      "when": { "type": "species_need_below", "species": "dingo", "need": "food", "below": 0.8 },
+      "title": "Prey must thrive",
+      "body": "The pack is hungry: there isn't enough prey in its territory for all of them. Predators can only thrive where prey does. Keep the kangaroos content and they'll raise more joeys."
+    },
+    {
+      "id": "too_many_dingoes",
+      "when": { "type": "all", "of": [
+        { "type": "species_count", "species": "dingo", "at_least": 4 },
+        { "type": "species_need_below", "species": "dingo", "need": "food", "below": 0.6 }
+      ] },
+      "title": "Too many dingoes",
+      "body": "There are more dingoes than the prey here can feed. Rangers sometimes relocate a dingo to a park that needs one. Pick Relocate and click a dingo."
+    }
+  ],
+  "finale": {
+    "title": "Predator and prey",
+    "body": "The dingoes, kangaroos, wombats and possums are all thriving together. Each one keeps the others in balance."
+  }
+}

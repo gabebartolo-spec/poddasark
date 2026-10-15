@@ -1,0 +1,52 @@
+{
+  "id": "australia_apply_learnings",
+  "name": "Australian park: apply learnings",
+  "_note": "M2 stage, added to the wombat tutorial's world after its finale (seamless zoom-out). Layout and numbers are a first pass for the director to tune. Positions are [x, z] in metres; the wombat corner is around [0, 0].",
+  "phase": "res://data/phases/apply_learnings.json",
+  "next_stage": "res://data/parks/dingo.json",
+  "camera": {
+    "focus": [0, 0],
+    "start_zoom": 0.62,
+    "bounds_half_extent": 110,
+    "max_distance": 280
+  },
+  "placeables_add": [
+    { "id": "eucalypt", "label": "Eucalypt", "kind": "eucalypt", "cost": 0 },
+    { "id": "nest_box", "label": "Nest box", "kind": "nest_box", "cost": 0 }
+  ],
+  "harmony_species": ["wombat", "kangaroo", "possum"],
+  "features": [
+    { "kind": "eucalypt", "pos": [-62, 48] },
+    { "kind": "eucalypt", "pos": [-70, 56] },
+    { "kind": "eucalypt", "pos": [-58, 60] },
+
+    { "kind": "water", "pos": [-30, -70] },
+
+    { "kind": "litter", "pos": [55, -30] },
+    { "kind": "litter", "pos": [70, -60] },
+    { "kind": "pollutant", "pos": [45, -55] },
+    { "kind": "litter", "pos": [-50, 40] },
+    { "kind": "litter", "pos": [-75, 65] },
+
+    { "kind": "invasive_plant", "pos": [52, -42] },
+    { "kind": "invasive_plant", "pos": [74, -50] },
+    { "kind": "invasive_plant", "pos": [-66, 40] },
+    { "kind": "invasive_plant", "pos": [-48, 66] },
+    { "kind": "invasive_plant", "pos": [10, 80] },
+    { "kind": "invasive_plant", "pos": [85, 20] }
+  ],
+  "animals": [
+    { "key": "roo_lead", "species": "kangaroo", "name": "Kangaroo", "pos": [62, -48] },
+    { "key": "roo_2", "species": "kangaroo", "name": "Kangaroo", "pos": [66, -43] },
+    { "key": "roo_3", "species": "kangaroo", "name": "Kangaroo", "pos": [58, -53] },
+    { "key": "roo_4", "species": "kangaroo", "name": "Kangaroo", "pos": [95, -80],
+      "hidden_until": { "host_needs": ["food", "water"], "join": "roo_lead" } },
+    { "key": "roo_5", "species": "kangaroo", "name": "Kangaroo", "pos": [95, -70],
+      "hidden_until": { "host_needs": ["food", "water"], "join": "roo_lead" } },
+    { "key": "roo_6", "species": "kangaroo", "name": "Kangaroo", "pos": [90, -85],
+      "hidden_until": { "host_needs": ["food", "water"], "join": "roo_lead" } }
+  ],
+  "move_ins": [
+    { "species": "possum", "max": 2, "shelter": ["nest_box"], "food": "eucalypt", "food_range": 6 }
+  ]
+}
