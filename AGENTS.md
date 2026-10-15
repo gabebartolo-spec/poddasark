@@ -33,3 +33,23 @@ Cursor or any other). They override an agent's default behaviour.
 - Predators are never villains, in mechanics, text or presentation.
 - Never invent final art, palette or style. Placeholder art is neutral grey and
   labelled as placeholder.
+
+## Engineering conventions (confirmed by the director, M0)
+
+- Ecosystem logic goes in `src/eco/`. It must not use scene nodes, the scene tree or
+  rendering, so it can be tested and balanced without playing.
+- Content (species, needs, parks, phase scripts) goes in `data/`, not in code.
+- All randomness in the ecosystem logic goes through `SeededRng`, never the global
+  `randf()` or `randi()`.
+- Placeholder art is neutral grey and labelled as placeholder.
+- The renderer is GL Compatibility, so the browser build works. Do not switch it.
+
+## Checks before pushing
+
+```
+tools/godot.sh --headless --path . --import
+tools/godot.sh --headless --path . -s tests/run_tests.gd
+```
+
+At every milestone gate, also export both presets (Windows and Web) and check that the
+web build loads in a browser.

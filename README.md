@@ -1,1 +1,54 @@
 # poddasark
+
+A relaxing game about restoring natural parks so their animals can thrive, building
+towards balanced ecosystems of predators, prey and plants. Made in Godot 4.7.2 for PC,
+releasing on itch.io.
+
+- Design notes: `docs/brainstorms/`
+- Build plan: `docs/ROADMAP.md`
+- Rules for AI agents: `AGENTS.md`
+
+## Running it
+
+Open this folder in Godot 4.7.2 and press Play (F5).
+
+Controls (M0 build):
+- **Pan:** WASD / arrow keys, or drag with the middle mouse button
+- **Rotate:** drag with the right mouse button, or Q / E
+- **Zoom:** mouse wheel
+
+All art is grey placeholder for now.
+
+## Exporting for itch.io
+
+In Godot: **Project > Export**. There are two presets:
+- **Windows:** a single `.exe`. Zip it and upload it to itch.io as a Windows download.
+- **Web (itch.io):** exports to `export/web/`. Zip the *contents* of that folder
+  (with `index.html` at the top level), upload it to itch.io, and tick "This file will
+  be played in the browser". The build is single-threaded, so itch's
+  SharedArrayBuffer option is not needed.
+
+The first time, Godot will ask you to download export templates (Editor > Manage
+Export Templates).
+
+## Tests
+
+The ecosystem logic in `src/eco/` is tested headless:
+
+```
+godot --headless --path . -s tests/run_tests.gd
+```
+
+(or `tools/godot.sh --headless --path . -s tests/run_tests.gd` on Linux, which
+downloads Godot 4.7.2 on first use.)
+
+## Project layout
+
+| Folder | What goes there |
+|---|---|
+| `src/eco/` | Ecosystem logic: needs, contentedness, populations. Plain scripts with no scene nodes, so they can be tested and balanced without playing. |
+| `src/game/` | Scene scripts: camera, input, what's on screen. |
+| `scenes/` | Godot scenes. |
+| `data/` | Content: species, needs, parks, phase scripts. |
+| `tests/` | Headless tests (`test_*.gd`). |
+| `tools/` | Helper scripts. |
