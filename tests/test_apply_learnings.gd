@@ -152,3 +152,18 @@ func test_phase_waits_at_harmony_if_a_species_is_not_content() -> void:
 	_run(world, phase, "", 5.0)
 	assert_eq(_step_id(phase), "the_mob")
 	assert_true(not world.harmony_reached())
+
+
+func test_small_mob_is_not_content_until_it_grows() -> void:
+	var world: EcoWorld = _setup()[0]
+	var mob := world.find_animal("roo_lead").home
+	# Food and water for the first three only (the joiners are still walking in).
+	world.add_feature("water", mob + Vector2(8, 4))
+	world.add_feature("native_grass", mob + Vector2(-3, 2))
+	world.refresh_needs()
+	var roo := world.find_animal("roo_lead")
+	assert_eq(_present(world, "kangaroo"), 3)
+	assert_true(world.contentedness(roo, true) < roo.species.mood_high, "3 kangaroos: not content yet")
+	_run(world, null, "", 60.0)
+	assert_eq(_present(world, "kangaroo"), 6)
+	assert_true(world.harmony_report()[1]["content"], "the grown mob is content")
