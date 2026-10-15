@@ -131,6 +131,18 @@ func configure(focus: Vector3, zoom_t: float, half_extent: float, widest: float)
 	_apply()
 
 
+## Smoothly moves to a new focus, zoom and park size, e.g. the zoom-out between
+## campaign phases. The current view is kept as the starting point, so the camera
+## glides rather than jumps when the zoom range changes.
+func retarget(focus: Vector3, zoom_t: float, half_extent: float, widest: float) -> void:
+	var distance := CameraMath.distance_for_zoom(_zoom_t, min_distance, max_distance)
+	bounds_half_extent = half_extent
+	max_distance = widest
+	_zoom_t = CameraMath.zoom_for_distance(distance, min_distance, max_distance)
+	_target_zoom_t = clampf(zoom_t, 0.0, 1.0)
+	_target_focus = CameraMath.clamp_focus(focus, half_extent)
+
+
 ## The camera this rig drives, for picking and placing.
 func camera() -> Camera3D:
 	return _camera

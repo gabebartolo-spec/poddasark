@@ -1,0 +1,46 @@
+{
+  "id": "possum",
+  "name": "Common brushtail possum",
+  "scientific_name": "Trichosurus vulpecula",
+  "_note": "Numbers are first-pass placeholders for the director to tune. Facts are draft text, to be checked against sources before release. Brushtails are mostly solitary, so they have no company need.",
+  "placeholder": { "shape": "small", "scale": 0.6 },
+  "behaviour": {
+    "wander_radius": 2.5,
+    "speed": 1.0
+  },
+  "mood": {
+    "low": 0.4,
+    "high": 0.75
+  },
+  "needs": [
+    {
+      "id": "food",
+      "label": "Food",
+      "type": "resource",
+      "feature": "eucalypt",
+      "range": 6,
+      "weight": 1,
+      "issue": "Hungry: no eucalypts close to its den"
+    },
+    {
+      "id": "safety",
+      "label": "Safety",
+      "type": "safety",
+      "shelter": ["nest_box"],
+      "range": 4,
+      "shelter_share": 1.0,
+      "weight": 1,
+      "issue_parts": {
+        "shelter": "No den: no nest box or hollow close by"
+      }
+    }
+  ],
+  "facts": [
+    "Brushtail possums sleep through the day in tree hollows, and come out to feed at night.",
+    "A eucalypt can take 100 years or more to form hollows big enough for a possum.",
+    "Where old hollow trees have been cleared, nest boxes give possums somewhere safe to den.",
+    "They eat mostly eucalypt leaves, plus flowers, fruit and buds.",
+    "Brushtail possums mostly live alone, and mark their home range with scent.",
+    "They get much of the water they need from the leaves they eat."
+  ]
+}

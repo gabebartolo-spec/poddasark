@@ -1,0 +1,38 @@
+{
+  "id": "apply_learnings",
+  "_note": "M2 'apply learnings' phase. All text is draft for the director to rewrite. The director wants this phase to be practice, so it should guide lightly.",
+  "steps": [
+    {
+      "id": "find_the_mob",
+      "title": "A bigger park",
+      "body": "Beyond the wombats' corner, a small mob of western grey kangaroos is struggling. Find them and click one to see what they need.",
+      "show_harmony": true,
+      "done_when": { "type": "selected_species", "species": "kangaroo" }
+    },
+    {
+      "id": "the_mob",
+      "title": "The mob",
+      "body": "Kangaroos graze on native grasses and need water within reach. A mob keeps watch together, so the more of them there are, the safer each one feels. Meet their needs and more kangaroos will join.",
+      "show_harmony": true,
+      "done_when": { "type": "species_content", "species": "kangaroo" }
+    },
+    {
+      "id": "possums",
+      "title": "Possums",
+      "body": "Brushtail possums den in tree hollows, but hollows take a century to form. Rangers put up nest boxes instead. Put a nest box close to eucalypts and possums will move in.",
+      "show_harmony": true,
+      "done_when": { "type": "species_count", "species": "possum", "at_least": 1 }
+    },
+    {
+      "id": "harmony",
+      "title": "Harmony",
+      "body": "Bring every species to contentment to pass the harmony gate. Open the checklist to see who still needs help.",
+      "show_harmony": true,
+      "done_when": { "type": "harmony" }
+    }
+  ],
+  "finale": {
+    "title": "Harmony",
+    "body": "Every species in this part of the park is content. You've left it better than you found it."
+  }
+}

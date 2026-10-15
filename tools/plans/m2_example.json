@@ -1,0 +1,13 @@
+{
+  "_note": "Example balance plan for M2: the wombat corner as left at the end of M1, then the apply learnings stage. Not game content; used by tools/simulate.gd.",
+  "park": "res://data/parks/wombat_tutorial.json",
+  "stages": ["res://data/parks/apply_learnings.json"],
+  "actions": [
+    { "t": 0, "place": "burrow", "near": "lonely", "pos": [2, 1] },
+    { "t": 0, "place": "native_grass", "near": "lonely", "pos": [-3, 2] },
+    { "t": 0, "clean_up_all": true },
+    { "t": 10, "place": "water", "near": "roo_lead", "pos": [8, 4] },
+    { "t": 20, "place": "native_grass", "near": "roo_lead", "pos": [-3, 2] },
+    { "t": 40, "place": "nest_box", "pos": [-60, 52] }
+  ]
+}

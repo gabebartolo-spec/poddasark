@@ -17,6 +17,12 @@ static func distance_for_zoom(zoom_t: float, min_distance: float, max_distance: 
 	return min_distance * pow(max_distance / min_distance, t)
 
 
+## Inverse of distance_for_zoom: the zoom level that gives this distance.
+static func zoom_for_distance(distance: float, min_distance: float, max_distance: float) -> float:
+	var d := clampf(distance, min_distance, max_distance)
+	return log(d / min_distance) / log(max_distance / min_distance)
+
+
 ## Keeps the camera's focus point inside the park's square bounds.
 static func clamp_focus(focus: Vector3, half_extent: float) -> Vector3:
 	return Vector3(

@@ -51,5 +51,21 @@ static func is_done(cond: Dictionary, world: EcoWorld, selected_key: String) -> 
 			return float(animal.parts.get(cond["part"], 0.0)) >= float(cond["at_least"])
 		"land_health":
 			return world.land_health() >= float(cond["at_least"])
+		"selected_species":
+			var selected := world.find_animal(selected_key)
+			return selected != null and selected.species.id == cond["species"]
+		"species_content":
+			for entry in world.harmony_report():
+				if entry["id"] == cond["species"]:
+					return entry["content"]
+			return false
+		"species_count":
+			var n := 0
+			for animal in world.animals:
+				if animal.is_present() and animal.species.id == cond["species"]:
+					n += 1
+			return n >= int(cond["at_least"])
+		"harmony":
+			return world.harmony_reached()
 	push_error("Unknown step condition: %s" % cond["type"])
 	return false

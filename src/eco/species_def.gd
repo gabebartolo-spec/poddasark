@@ -15,6 +15,8 @@ var mood_low := 0.4
 ## Contentedness at or above this shows the high mood icon.
 var mood_high := 0.75
 var facts: Array[String] = []
+## Placeholder body shape for the scene, e.g. {"shape": "upright", "scale": 1.3}.
+var placeholder: Dictionary = {}
 
 
 static func from_dict(d: Dictionary) -> SpeciesDef:
@@ -33,6 +35,7 @@ static func from_dict(d: Dictionary) -> SpeciesDef:
 		var need_id: String = cfg["id"]
 		s.needs[need_id] = cfg
 		s.need_order.append(need_id)
+	s.placeholder = d.get("placeholder", {})
 	for fact in d.get("facts", []):
 		s.facts.append(String(fact))
 	return s

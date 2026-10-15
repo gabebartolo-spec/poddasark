@@ -1,14 +1,16 @@
 class_name Hud
 extends CanvasLayer
-## On-screen UI for the wombat tutorial: build note, tutorial panel, needs panel
-## and toolbar. Built in code. Placeholder styling (Godot's default theme) until the
+## On-screen UI for the Australian park: build note, tutorial panel, harmony panel,
+## needs panel and toolbar. Built in code. Placeholder styling (Godot's default theme) until the
 ## director sets the look in M5.
 
 signal tool_selected(tool_id: String)
+## The player pressed Continue on a finale that leads to another stage.
+signal continue_pressed
 
-const BUILD_NOTE := "PLACEHOLDER ART - M1 wombat tutorial build\n" \
+const BUILD_NOTE := "PLACEHOLDER ART - M2 build (wombat tutorial, then apply learnings)\n" \
 	+ "Pan: WASD / arrows or middle-drag   Rotate: right-drag or Q / E   Zoom: wheel\n" \
-	+ "Tools: 1-5, Esc to go back to Observe"
+	+ "Tools: number keys, Esc to go back to Observe"
 
 var _root: Control
 var _tool_buttons: Dictionary = {}
@@ -17,6 +19,13 @@ var _step_body: Label
 var _step_count: Label
 var _land_label: Label
 var _land_bar: ProgressBar
+var _continue_button: Button
+var _toolbar: PanelContainer
+
+var _harmony_panel: PanelContainer
+var _harmony_bar: ProgressBar
+var _checklist_button: Button
+var _checklist: VBoxContainer
 
 var _needs_panel: PanelContainer
 var _animal_name: Label
@@ -38,9 +47,13 @@ func _ready() -> void:
 	_build_needs_panel(_root)
 
 
-## Builds the toolbar. placeables are the park's placeable entries.
+## Builds (or rebuilds) the toolbar. placeables are the park's placeable entries.
 func setup_tools(placeables: Array) -> void:
+	if _toolbar != null:
+		_toolbar.queue_free()
+		_tool_buttons.clear()
 	var bar := PanelContainer.new()
+	_toolbar = bar
 	bar.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
 	bar.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	bar.grow_vertical = Control.GROW_DIRECTION_BEGIN
@@ -88,14 +101,40 @@ func show_step(step: Dictionary, number: int, total: int) -> void:
 	var show_land: bool = step.get("show_land_health", false)
 	_land_label.visible = show_land
 	_land_bar.visible = show_land
+	_harmony_panel.visible = step.get("show_harmony", false)
+	_continue_button.visible = false
 
 
-func show_finale(finale: Dictionary) -> void:
+## can_continue shows a Continue button that leads into the next stage.
+func show_finale(finale: Dictionary, can_continue := false) -> void:
 	_step_title.text = finale.get("title", "")
 	_step_body.text = finale.get("body", "")
-	_step_count.text = "Tutorial complete"
+	_step_count.text = "Phase complete"
 	_land_label.visible = false
 	_land_bar.visible = false
+	_continue_button.visible = can_continue
+
+
+## progress is 0 to 1; report is EcoWorld.harmony_report().
+func set_harmony(progress: float, report: Array) -> void:
+	_harmony_bar.value = progress
+	if not _checklist.visible:
+		return
+	while _checklist.get_child_count() < report.size():
+		var row := Label.new()
+		_checklist.add_child(row)
+	for i in _checklist.get_child_count():
+		var row: Label = _checklist.get_child(i)
+		row.visible = i < report.size()
+		if i < report.size():
+			var entry: Dictionary = report[i]
+			var state := "content"
+			if int(entry["count"]) == 0:
+				state = "not here yet"
+			elif not entry["content"]:
+				state = "needs help"
+			row.text = "%s  %s (%d): %s" % ["[x]" if entry["content"] else "[  ]",
+				entry["name"], int(entry["count"]), state]
 
 
 func set_land_health(value: float) -> void:
@@ -180,6 +219,37 @@ func _build_left_column(root: Control) -> void:
 	box.add_child(_land_label)
 	_land_bar = _make_bar()
 	box.add_child(_land_bar)
+	_continue_button = Button.new()
+	_continue_button.text = "Continue"
+	_continue_button.focus_mode = Control.FOCUS_NONE
+	_continue_button.visible = false
+	_continue_button.pressed.connect(func() -> void: continue_pressed.emit())
+	box.add_child(_continue_button)
+
+	_harmony_panel = PanelContainer.new()
+	_harmony_panel.visible = false
+	column.add_child(_harmony_panel)
+	var hbox := _padded_vbox(_harmony_panel)
+	var harmony_label := Label.new()
+	harmony_label.text = "Harmony"
+	harmony_label.add_theme_font_size_override("font_size", 20)
+	hbox.add_child(harmony_label)
+	_harmony_bar = _make_bar()
+	_harmony_bar.custom_minimum_size = Vector2(0, 22)
+	hbox.add_child(_harmony_bar)
+	_checklist_button = Button.new()
+	_checklist_button.text = "Show checklist"
+	_checklist_button.focus_mode = Control.FOCUS_NONE
+	_checklist_button.pressed.connect(_toggle_checklist)
+	hbox.add_child(_checklist_button)
+	_checklist = VBoxContainer.new()
+	_checklist.visible = false
+	hbox.add_child(_checklist)
+
+
+func _toggle_checklist() -> void:
+	_checklist.visible = not _checklist.visible
+	_checklist_button.text = "Hide checklist" if _checklist.visible else "Show checklist"
 
 
 func _build_needs_panel(root: Control) -> void:

@@ -3,6 +3,7 @@
   "name": "Australian park: the lonely wombat",
   "_note": "Layout is a first pass for the director to tune. Positions are [x, z] in metres.",
   "seed": 1407,
+  "next_stage": "res://data/parks/apply_learnings.json",
   "camera": {
     "focus": [0, 0],
     "start_zoom": 0.32,

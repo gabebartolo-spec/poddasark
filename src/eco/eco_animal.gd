@@ -15,6 +15,9 @@ var home: Vector2
 var hidden := false
 ## Land health (0 to 1) at which a hidden animal comes out.
 var emerge_at_land_health := 1.0
+## If set, a hidden animal comes out when the animal it joins has these needs fully
+## met (e.g. a kangaroo mob grows once it has food and water), instead of on land health.
+var emerge_host_needs: Array[String] = []
 ## Key of the animal whose home this one joins when it comes out.
 var join_key := ""
 

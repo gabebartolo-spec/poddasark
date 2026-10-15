@@ -18,6 +18,10 @@ var world: EcoWorld
 var phase: PhaseScript
 
 var _park: Dictionary
+## Path of the next campaign stage (from the current stage's "next_stage"), or "".
+var _next_stage := ""
+## Half the width of the area the player can currently place things in.
+var _bounds := 128.0
 var _rig: CameraRig
 var _hud: Hud
 var _tool := "observe"
@@ -33,19 +37,16 @@ var _materials: Dictionary = {}
 func _ready() -> void:
 	_rig = get_node(camera_rig_path)
 	_park = DataFiles.load_json(park_path)
-	var species := {}
-	for a in _park["animals"]:
-		var id: String = a["species"]
-		if not species.has(id):
-			species[id] = SpeciesDef.load_file(SPECIES_DIR + id + ".json")
+	_next_stage = _park.get("next_stage", "")
 	for p in _park.get("placeables", []):
 		_placeables[p["id"]] = p
 
 	# Build from data, then mirror the finished world and listen for changes.
-	world =EcoWorld.from_park(_park, species, int(_park.get("seed", 1)))
+	world = EcoWorld.from_park(_park, _load_species(_park), int(_park.get("seed", 1)))
 	world.feature_added.connect(_on_feature_added)
 	world.feature_removed.connect(_on_feature_removed)
 	world.animal_emerged.connect(_on_animal_emerged)
+	world.animal_added.connect(_spawn_animal)
 	for feature in world.features:
 		_on_feature_added(feature)
 	for animal in world.animals:
@@ -62,18 +63,64 @@ func _ready() -> void:
 
 	var cam: Dictionary = _park.get("camera", {})
 	var focus := DataFiles.to_vec2(cam.get("focus", [0, 0]))
+	_bounds = float(cam.get("bounds_half_extent", 128.0))
 	_rig.configure(Vector3(focus.x, 0.0, focus.y), float(cam.get("start_zoom", 0.4)),
-		float(cam.get("bounds_half_extent", 128.0)), float(cam.get("max_distance", 260.0)))
+		_bounds, float(cam.get("max_distance", 260.0)))
 
 	_hud = Hud.new()
 	add_child(_hud)
-	_hud.setup_tools(_park.get("placeables", []))
+	_hud.setup_tools(_placeables.values())
 	_hud.tool_selected.connect(func(tool_id: String) -> void: _tool = tool_id)
+	_hud.continue_pressed.connect(_advance_stage)
 
-	phase = PhaseScript.from_dict(DataFiles.load_json(phase_path))
+	_start_phase(phase_path)
+
+
+## Species used by a park or stage's animals and move-ins, loaded from data/species/.
+func _load_species(d: Dictionary) -> Dictionary:
+	var species := {}
+	var ids: Array = []
+	for a in d.get("animals", []):
+		ids.append(a["species"])
+	for m in d.get("move_ins", []):
+		ids.append(m["species"])
+	ids.append_array(d.get("harmony_species", []))
+	for id in ids:
+		if not species.has(id) and not world_has_species(id):
+			species[id] = SpeciesDef.load_file(SPECIES_DIR + String(id) + ".json")
+	return species
+
+
+func world_has_species(id: String) -> bool:
+	return world != null and world.species_defs.has(id)
+
+
+func _start_phase(path: String) -> void:
+	phase = PhaseScript.from_dict(DataFiles.load_json(path))
 	phase.step_changed.connect(func(_step: Dictionary) -> void: _show_current_step())
-	phase.finished.connect(_hud.show_finale)
+	phase.finished.connect(func(finale: Dictionary) -> void:
+		_hud.show_finale(finale, _next_stage != ""))
 	_show_current_step()
+
+
+## The seamless zoom-out: adds the next stage to the same world, widens the park,
+## pulls the camera back and starts the next phase. Everything built so far stays.
+func _advance_stage() -> void:
+	if _next_stage == "":
+		return
+	var stage: Dictionary = DataFiles.load_json(_next_stage)
+	_next_stage = stage.get("next_stage", "")
+	world.add_content(stage, _load_species(stage))
+	for p in stage.get("placeables_add", []):
+		_placeables[p["id"]] = p
+	_hud.setup_tools(_placeables.values())
+	_set_tool("observe")
+	var cam: Dictionary = stage.get("camera", {})
+	var focus := DataFiles.to_vec2(cam.get("focus", [0, 0]))
+	_bounds = float(cam.get("bounds_half_extent", _bounds))
+	_rig.retarget(Vector3(focus.x, 0.0, focus.y), float(cam.get("start_zoom", 0.6)),
+		_bounds, float(cam.get("max_distance", 260.0)))
+	_start_phase(stage["phase"])
 
 
 func _process(delta: float) -> void:
@@ -82,6 +129,7 @@ func _process(delta: float) -> void:
 		_sync_animal(animal)
 	phase.update(world, _selected.key if _selected != null else "")
 	_hud.set_land_health(world.land_health())
+	_hud.set_harmony(world.harmony_progress(), world.harmony_report())
 	if _selected != null:
 		_hud.update_animal(_selected, world)
 		var node: Node3D = _animal_nodes[_selected.id]
@@ -118,8 +166,7 @@ func _click(screen_pos: Vector2) -> void:
 	if _tool == "clean_up":
 		world.clean_up_at(pos, float(_park.get("clean_up_radius", 2.0)))
 	elif _placeables.has(_tool):
-		var half := float(_park.get("camera", {}).get("bounds_half_extent", 128.0))
-		if absf(pos.x) <= half and absf(pos.y) <= half:
+		if absf(pos.x) <= _bounds and absf(pos.y) <= _bounds:
 			world.add_feature(_placeables[_tool]["kind"], pos)
 
 
@@ -181,27 +228,38 @@ func _on_animal_emerged(animal: EcoAnimal) -> void:
 
 
 func _spawn_animal(animal: EcoAnimal) -> void:
+	if _animal_nodes.has(animal.id):
+		return
+	var shape: Dictionary = animal.species.placeholder
+	var scale := float(shape.get("scale", 1.0))
+	var upright: bool = shape.get("shape", "low") == "upright"
 	var node := Node3D.new()
 	var body := MeshInstance3D.new()
 	var capsule := CapsuleMesh.new()
-	capsule.radius = 0.35
-	capsule.height = 1.0
+	capsule.radius = 0.35 * scale
+	capsule.height = 1.0 * scale
 	body.mesh = capsule
 	body.material_override = _grey(0.38)
-	# Lie the capsule along the animal's facing direction: low and stocky.
-	body.rotation = Vector3(deg_to_rad(90.0), 0.0, 0.0)
-	body.position = Vector3(0.0, 0.35, 0.0)
+	if upright:
+		# Standing body, e.g. a kangaroo.
+		body.position = Vector3(0.0, 0.5 * scale, 0.0)
+	else:
+		# Lie the capsule along the animal's facing direction: low and stocky.
+		body.rotation = Vector3(deg_to_rad(90.0), 0.0, 0.0)
+		body.position = Vector3(0.0, 0.35 * scale, 0.0)
 	node.add_child(body)
 	var head := MeshInstance3D.new()
 	var sphere := SphereMesh.new()
-	sphere.radius = 0.22
-	sphere.height = 0.44
+	sphere.radius = 0.22 * scale
+	sphere.height = 0.44 * scale
 	head.mesh = sphere
 	head.material_override = _grey(0.3)
-	head.position = Vector3(0.0, 0.4, -0.55)
+	head.position = Vector3(0.0, 1.05 * scale, -0.15 * scale) if upright \
+		else Vector3(0.0, 0.4 * scale, -0.55 * scale)
 	node.add_child(head)
-	node.add_child(_label("placeholder: " + animal.species.display_name.to_lower(), 1.05, 32))
-	var mood := _label("", 1.45, 72)
+	var top := (1.3 if upright else 0.75) * scale
+	node.add_child(_label("placeholder: " + animal.species.display_name.to_lower(), top + 0.3, 32))
+	var mood := _label("", top + 0.7, 72)
 	mood.no_depth_test = true
 	node.add_child(mood)
 	_mood_labels[animal.id] = mood
@@ -283,6 +341,39 @@ func _make_feature_node(kind: String) -> Node3D:
 			mesh.material_override = _grey(0.3)
 			mesh.position.y = 0.9
 			label_height = 2.2
+		"eucalypt":
+			var trunk := CylinderMesh.new()
+			trunk.top_radius = 0.25
+			trunk.bottom_radius = 0.35
+			trunk.height = 4.0
+			mesh.mesh = trunk
+			mesh.material_override = _grey(0.35)
+			mesh.position.y = 2.0
+			var canopy := MeshInstance3D.new()
+			var crown := SphereMesh.new()
+			crown.radius = 2.2
+			crown.height = 3.2
+			canopy.mesh = crown
+			canopy.material_override = _grey(0.55)
+			canopy.position.y = 5.0
+			node.add_child(canopy)
+			label_height = 7.0
+		"nest_box":
+			var post := CylinderMesh.new()
+			post.top_radius = 0.08
+			post.bottom_radius = 0.08
+			post.height = 2.0
+			mesh.mesh = post
+			mesh.material_override = _grey(0.35)
+			mesh.position.y = 1.0
+			var box := MeshInstance3D.new()
+			var b := BoxMesh.new()
+			b.size = Vector3(0.5, 0.6, 0.5)
+			box.mesh = b
+			box.material_override = _grey(0.6)
+			box.position.y = 2.2
+			node.add_child(box)
+			label_height = 3.0
 		_:
 			var m := BoxMesh.new()
 			m.size = Vector3(0.5, 0.5, 0.5)
