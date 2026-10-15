@@ -31,6 +31,11 @@ Cursor or any other). They override an agent's default behaviour.
 - Every feature must pass the core test: *does it help the player leave the park
   better than they found it, and closer to a balanced ecosystem?*
 - Predators are never villains, in mechanics, text or presentation.
+- **Default to realism.** When filling in details the director hasn't specified (numbers,
+  behaviours, which animals do what), choose what's true to real animal behaviour and
+  ecology, and mark it as tunable in the data. The director may later tune it for taste
+  and fun. This does not replace asking: anything listed as a Director decision or open
+  question still goes to the director.
 - Never invent final art, palette or style. Placeholder art is neutral grey and
   labelled as placeholder.
 
