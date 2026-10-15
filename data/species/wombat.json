@@ -1,0 +1,68 @@
+{
+  "id": "wombat",
+  "name": "Wombat",
+  "scientific_name": "Vombatidae",
+  "_note": "Numbers are first-pass placeholders for the director to tune. Facts are draft text, to be checked against sources before release.",
+  "behaviour": {
+    "wander_radius": 3.5,
+    "speed": 1.2
+  },
+  "mood": {
+    "low": 0.4,
+    "high": 0.75
+  },
+  "needs": [
+    {
+      "id": "water",
+      "label": "Water",
+      "type": "resource",
+      "feature": "water",
+      "range": 14,
+      "weight": 0.5,
+      "issue": "Thirsty: no water close to its home"
+    },
+    {
+      "id": "food",
+      "label": "Food",
+      "type": "resource",
+      "feature": "native_grass",
+      "range": 8,
+      "weight": 1,
+      "issue": "Hungry: no native grasses close to its home"
+    },
+    {
+      "id": "safety",
+      "label": "Safety",
+      "type": "safety",
+      "shelter": "burrow",
+      "range": 6,
+      "shelter_share": 0.5,
+      "fear_kinds": ["litter", "pollutant"],
+      "fear_radius": 10,
+      "fear_per_item": 0.25,
+      "weight": 1,
+      "issue_parts": {
+        "shelter": "No shelter: no burrow close to its home",
+        "calm": "Scared: litter and pollution near its home"
+      }
+    },
+    {
+      "id": "company",
+      "label": "Company",
+      "type": "company",
+      "range": 12,
+      "wanted": 3,
+      "weight": 1,
+      "issue": "Alone: no other wombats nearby"
+    }
+  ],
+  "facts": [
+    "Wombats dig burrows with their strong claws, and spend the hottest part of the day resting underground.",
+    "A wombat's pouch faces backwards, so no soil gets in while it digs.",
+    "Wombats mostly eat native grasses, sedges and roots.",
+    "Wombats get most of the water they need from their food, so they don't drink often.",
+    "Wombats are mostly active at night, at dusk and at dawn.",
+    "Wombat droppings are cube-shaped.",
+    "Invasive plants crowd out the native grasses that wombats rely on."
+  ]
+}

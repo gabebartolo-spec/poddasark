@@ -120,6 +120,22 @@ func _apply() -> void:
 	_camera.rotation = Vector3(-pitch, 0.0, 0.0)
 
 
+## Sets the area and starting view, e.g. from a park's data file.
+func configure(focus: Vector3, zoom_t: float, half_extent: float, widest: float) -> void:
+	bounds_half_extent = half_extent
+	max_distance = widest
+	_focus = CameraMath.clamp_focus(focus, half_extent)
+	_target_focus = _focus
+	_zoom_t = clampf(zoom_t, 0.0, 1.0)
+	_target_zoom_t = _zoom_t
+	_apply()
+
+
+## The camera this rig drives, for picking and placing.
+func camera() -> Camera3D:
+	return _camera
+
+
 ## Rotation that maps screen-relative movement onto the ground plane.
 func _ground_basis() -> Basis:
 	return Basis(Vector3.UP, _yaw)

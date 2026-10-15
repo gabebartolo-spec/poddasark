@@ -1,0 +1,49 @@
+{
+  "id": "australia_wombat_tutorial",
+  "name": "Australian park: the lonely wombat",
+  "_note": "Layout is a first pass for the director to tune. Positions are [x, z] in metres.",
+  "seed": 1407,
+  "camera": {
+    "focus": [0, 0],
+    "start_zoom": 0.32,
+    "bounds_half_extent": 34,
+    "max_distance": 90
+  },
+  "clean_up_radius": 2.0,
+  "placeables": [
+    { "id": "water", "label": "Water", "kind": "water", "cost": 0 },
+    { "id": "native_grass", "label": "Native grasses", "kind": "native_grass", "cost": 0 },
+    { "id": "burrow", "label": "Burrow", "kind": "burrow", "cost": 0 }
+  ],
+  "features": [
+    { "kind": "water", "pos": [7, -6] },
+
+    { "kind": "litter", "pos": [3, 2.5] },
+    { "kind": "litter", "pos": [-4, 3] },
+    { "kind": "litter", "pos": [1.5, -5] },
+    { "kind": "litter", "pos": [-6, -2] },
+    { "kind": "pollutant", "pos": [5, 5] },
+
+    { "kind": "litter", "pos": [18, 9] },
+    { "kind": "litter", "pos": [-15, -16] },
+    { "kind": "pollutant", "pos": [-20, 6] },
+
+    { "kind": "invasive_plant", "pos": [14, -15] },
+    { "kind": "invasive_plant", "pos": [16, -12] },
+    { "kind": "invasive_plant", "pos": [-17, 13] },
+    { "kind": "invasive_plant", "pos": [-13, 18] },
+    { "kind": "invasive_plant", "pos": [22, 18] },
+    { "kind": "invasive_plant", "pos": [-24, -8] }
+  ],
+  "animals": [
+    { "key": "lonely", "species": "wombat", "name": "The lonely wombat", "pos": [0, 0] },
+    { "key": "friend_1", "species": "wombat", "name": "Wombat", "pos": [26, 22],
+      "hidden_until": { "land_health": 1.0, "join": "lonely" } },
+    { "key": "friend_2", "species": "wombat", "name": "Wombat", "pos": [-28, 20],
+      "hidden_until": { "land_health": 1.0, "join": "lonely" } },
+    { "key": "friend_3", "species": "wombat", "name": "Wombat", "pos": [24, -26],
+      "hidden_until": { "land_health": 1.0, "join": "lonely" } },
+    { "key": "friend_4", "species": "wombat", "name": "Wombat", "pos": [-26, -24],
+      "hidden_until": { "land_health": 1.0, "join": "lonely" } }
+  ]
+}

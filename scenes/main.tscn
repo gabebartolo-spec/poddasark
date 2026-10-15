@@ -1,6 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://src/game/camera_rig.gd" id="1_rig"]
+[ext_resource type="Script" path="res://src/game/park.gd" id="2_park"]
 
 [sub_resource type="Environment" id="Env"]
 background_mode = 1
@@ -19,14 +20,6 @@ size = Vector2(256, 256)
 subdivide_width = 32
 subdivide_depth = 32
 
-[sub_resource type="StandardMaterial3D" id="MarkerGrey"]
-albedo_color = Color(0.3, 0.3, 0.3, 1)
-roughness = 1.0
-
-[sub_resource type="BoxMesh" id="MarkerMesh"]
-material = SubResource("MarkerGrey")
-size = Vector3(1, 1, 1)
-
 [node name="Main" type="Node3D"]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
@@ -40,40 +33,11 @@ shadow_enabled = true
 mesh = SubResource("GroundMesh")
 
 [node name="PlaceholderLabel" type="Label3D" parent="PlaceholderTerrain"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, -8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, -32)
 billboard = 1
 text = "PLACEHOLDER TERRAIN"
 font_size = 96
 modulate = Color(0.15, 0.15, 0.15, 1)
-
-[node name="ScaleMarkers" type="Node3D" parent="."]
-
-[node name="Marker1m" type="MeshInstance3D" parent="ScaleMarkers"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
-mesh = SubResource("MarkerMesh")
-
-[node name="Marker1mLabel" type="Label3D" parent="ScaleMarkers/Marker1m"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
-billboard = 1
-text = "placeholder: 1 m block"
-font_size = 24
-modulate = Color(0.15, 0.15, 0.15, 1)
-
-[node name="Marker10mNorth" type="MeshInstance3D" parent="ScaleMarkers"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, -10)
-mesh = SubResource("MarkerMesh")
-
-[node name="Marker10mEast" type="MeshInstance3D" parent="ScaleMarkers"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0.5, 0)
-mesh = SubResource("MarkerMesh")
-
-[node name="Marker100mNorth" type="MeshInstance3D" parent="ScaleMarkers"]
-transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 2, -100)
-mesh = SubResource("MarkerMesh")
-
-[node name="Marker100mEast" type="MeshInstance3D" parent="ScaleMarkers"]
-transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 100, 2, 0)
-mesh = SubResource("MarkerMesh")
 
 [node name="CameraRig" type="Node3D" parent="."]
 script = ExtResource("1_rig")
@@ -82,14 +46,5 @@ script = ExtResource("1_rig")
 current = true
 far = 2000.0
 
-[node name="HUD" type="CanvasLayer" parent="."]
-
-[node name="BuildNote" type="Label" parent="HUD"]
-offset_left = 16.0
-offset_top = 12.0
-offset_right = 700.0
-offset_bottom = 120.0
-text = "PLACEHOLDER ART - M0 foundations build
-Pan: WASD / arrow keys or middle-mouse drag
-Rotate: right-mouse drag or Q / E
-Zoom: mouse wheel"
+[node name="Park" type="Node3D" parent="."]
+script = ExtResource("2_park")

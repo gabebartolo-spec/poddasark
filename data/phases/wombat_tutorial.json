@@ -1,0 +1,41 @@
+{
+  "id": "wombat_tutorial",
+  "_note": "Step order is the director's (M1): shelter, scared, hungry, alone. The opening 'observe' step teaches clicking an animal. All text is draft for the director to rewrite.",
+  "steps": [
+    {
+      "id": "observe",
+      "title": "A lonely wombat",
+      "body": "This wombat is scared, alone, hungry and has nowhere to shelter. Click it to see what it needs.",
+      "done_when": { "type": "selected", "animal": "lonely" }
+    },
+    {
+      "id": "shelter",
+      "title": "No shelter",
+      "body": "Wombats rest in burrows through the heat of the day. Pick Burrow in the toolbar, then click the ground close to the wombat.",
+      "done_when": { "type": "need_part", "animal": "lonely", "part": "shelter", "at_least": 1.0 }
+    },
+    {
+      "id": "scared",
+      "title": "Scared",
+      "body": "Litter and pollution around its home are frightening it. Pick Clean up, then click each piece of rubbish near the wombat.",
+      "done_when": { "type": "need_part", "animal": "lonely", "part": "calm", "at_least": 1.0 }
+    },
+    {
+      "id": "hungry",
+      "title": "Hungry",
+      "body": "Wombats graze on native grasses. Pick Native grasses and plant some close to the wombat.",
+      "done_when": { "type": "need", "animal": "lonely", "need": "food", "at_least": 1.0 }
+    },
+    {
+      "id": "alone",
+      "title": "Alone",
+      "body": "Its friends and family are hiding nearby. Clean up the rest of the rubbish and pull out the invasive plants. Once the land is healthy, they'll come out.",
+      "show_land_health": true,
+      "done_when": { "type": "need", "animal": "lonely", "need": "company", "at_least": 1.0 }
+    }
+  ],
+  "finale": {
+    "title": "Together again",
+    "body": "The wombat has found its friends and family. You've left this corner of the park better than you found it."
+  }
+}

@@ -12,10 +12,15 @@ releasing on itch.io.
 
 Open this folder in Godot 4.7.2 and press Play (F5).
 
-Controls (M0 build):
+The current build is the M1 wombat tutorial.
+
+Controls:
 - **Pan:** WASD / arrow keys, or drag with the middle mouse button
 - **Rotate:** drag with the right mouse button, or Q / E
 - **Zoom:** mouse wheel
+- **Observe an animal:** left-click it (Observe tool)
+- **Tools:** the toolbar or keys 1-5 (Observe, Water, Native grasses, Burrow, Clean up).
+  Left-click the ground to place or clean up. Esc goes back to Observe.
 
 All art is grey placeholder for now.
 
@@ -33,7 +38,8 @@ Export Templates).
 
 ## Tests
 
-The ecosystem logic in `src/eco/` is tested headless:
+The ecosystem logic in `src/eco/` and the tutorial script are tested headless,
+including a full scripted playthrough of the wombat tutorial from the real data files:
 
 ```
 godot --headless --path . -s tests/run_tests.gd
